@@ -259,7 +259,7 @@ class Ratfun(object):
         return self._roots(self.Bpoly)
 
     @lru_cache()
-    def poles(self, damping=None):
+    def poles(self, damping=None, simplify=None):
         """Return poles of expression as a list of Root objects.
         Note this may not find all the poles.
 
@@ -273,8 +273,12 @@ class Ratfun(object):
 
         for p, n in roots.items():
 
-            # Simplify things like -zeta + sqrt(zeta - 1) * sqrt(zeta + 2)
-            p = p.simplify()
+            # Heuristic to avoid simplify for really complicated poles.
+            if simplify is None:
+                simplify = p.count_ops() < 100
+            if simplify:
+                # Simplify things like -zeta + sqrt(zeta - 1) * sqrt(zeta + 2)
+                p = p.simplify()
 
             pole = Root(p, n=n, damping=damping)
             for q in poles:
