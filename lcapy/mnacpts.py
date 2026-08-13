@@ -5,7 +5,14 @@ are defined at the bottom of this file.
 Copyright 2015--2026 Michael Hayes, UCECE
 
 """
+"""
+Copyright (C) 2015--2026 Michael Hayes, UCECE
+Copyright (C) 2026 Amirmahmoud Rashidi — modifications
 
+This file is part of lcapy (https://github.com/mph-/lcapy) and is licensed under
+the GNU Lesser General Public License v2.1. See the LICENSE file in project root.
+
+"""
 from __future__ import print_function
 from .expr import expr
 from .omegaexpr import AngularFourierDomainExpression
@@ -1610,22 +1617,28 @@ class CCVS(DependentSource):
             mna._C[m1, n2] -= 1
 
         cname = self.args[0]
-        m2 = mna._branch_index(cname)
-        H = expr(self.args[1]).sympy
-        mna._D[m1, m2] -= H
-
+        H = lcapy.ConstantDomainExpression(self.args[1]).sympy
         ccpt = self.cct.elements[cname]
-        if ccpt.is_voltage_source:
-            return
-        # Controlling node indices
-        n3, n4 = [mna._node_index(name) for name in ccpt.node_names[0:2]]
 
-        if n3 >= 0:
-            mna._B[n3, m2] += 1
-            mna._C[m2, n3] += 1
-        if n4 >= 0:
-            mna._B[n4, m2] -= 1
-            mna._C[m2, n4] -= 1
+        if ccpt.is_voltage_source:
+            m2 = mna._branch_index(cname)
+            mna._D[m1, m2] -= H
+
+        elif ccpt.is_current_source:
+            Ival = ccpt.Isc.sympy
+            mna._Es[m1] += H * Ival
+
+        elif ccpt.is_resistor or ccpt.is_inductor or ccpt.is_capacitor:
+            n3, n4 = [mna._node_index(name) for name in ccpt.node_names[0:2]]
+            Zc = ccpt.Z.sympy
+
+            if n3 >= 0:
+                mna._C[m1, n3] -= H / Zc
+            if n4 >= 0:
+                mna._C[m1, n4] += H / Zc
+
+        else:
+            raise ValueError('Unsupported controlling element type for %s' % self)
 
     def _kill(self):
         newopts = self.opts.copy()
