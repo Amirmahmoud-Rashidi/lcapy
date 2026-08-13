@@ -3,7 +3,14 @@ This module implements modified nodal analysis (MNA).
 
 Copyright 2014--2025 Michael Hayes, UCECE
 """
+"""
+Copyright (C) 2015--2026 Michael Hayes, UCECE
+Copyright (C) 2026 Amirmahmoud Rashidi — modifications
 
+This file is part of lcapy (https://github.com/mph-/lcapy) and is licensed under
+the GNU Lesser General Public License v2.1. See the LICENSE file in project root.
+
+"""
 from __future__ import division
 from .assumptions import Assumptions
 from .vector import Vector
@@ -99,8 +106,10 @@ class MNA(object):
                 if cname not in self.cct.elements:
                     raise ValueError(
                         'Undefined controlling source %s for %s' % (cname, elt.name))
-                if cname not in self.unknown_branch_currents:
-                    self.unknown_branch_currents.append(cname)
+                ccpt = self.cct.elements[cname]
+                if ccpt.is_voltage_source:
+                    if cname not in self.unknown_branch_currents:
+                        self.unknown_branch_currents.append(cname)
 
         # Generate stamps.
         num_nodes = len(self.cct.node_list) - 1
