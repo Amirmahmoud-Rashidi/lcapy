@@ -2,9 +2,8 @@
 This module implements modified nodal analysis (MNA).
 
 Copyright 2014--2025 Michael Hayes, UCECE
-"""
-"""
-Copyright (C) 2015--2026 Michael Hayes, UCECE
+----------------------------------------------------
+Copyright (C) 2014--2026 Michael Hayes, UCECE
 Copyright (C) 2026 Amirmahmoud Rashidi — modifications
 
 This file is part of lcapy (https://github.com/mph-/lcapy) and is licensed under
