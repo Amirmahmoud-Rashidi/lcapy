@@ -1622,7 +1622,7 @@ class CCVS(DependentSource):
             m2 = mna._branch_index(cname)
             mna._D[m1, m2] -= H
 
-        elif ccpt.is_current_source:
+        elif ccpt.is_current_source and ccpt.is_independent_source:
             Ival = ccpt.Isc.sympy
             mna._Es[m1] += H * Ival
 
