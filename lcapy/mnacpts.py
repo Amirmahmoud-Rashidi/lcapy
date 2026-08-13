@@ -3,16 +3,14 @@ This module defines the components for modified nodal analysis.  The components
 are defined at the bottom of this file.
 
 Copyright 2015--2026 Michael Hayes, UCECE
-
-"""
-"""
+----------------------------------------------------
 Copyright (C) 2015--2026 Michael Hayes, UCECE
 Copyright (C) 2026 Amirmahmoud Rashidi — modifications
 
 This file is part of lcapy (https://github.com/mph-/lcapy) and is licensed under
 the GNU Lesser General Public License v2.1. See the LICENSE file in project root.
-
 """
+
 from __future__ import print_function
 from .expr import expr
 from .omegaexpr import AngularFourierDomainExpression
