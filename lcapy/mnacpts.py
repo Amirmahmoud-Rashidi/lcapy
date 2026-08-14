@@ -1502,17 +1502,40 @@ class CCCS(DependentSource):
         cname = self.args[0]
         ccpt = self.cct.elements[cname]
 
-        if not ccpt.is_voltage_source:
-            raise ValueError('The controlling component for %s must be a voltage souce' % self)
-
         n1, n2 = mna._cpt_node_indexes(self)
-        m = mna._branch_index(cname)
         F = expr(self.args[1]).sympy
 
-        if n1 >= 0:
-            mna._B[n1, m] += F
-        if n2 >= 0:
-            mna._B[n2, m] -= F
+        if ccpt.is_voltage_source:
+            m = mna._branch_index(cname)
+            if n1 >= 0:
+                mna._B[n1, m] -= F
+            if n2 >= 0:
+                mna._B[n2, m] += F
+
+        elif ccpt.is_current_source and ccpt.is_independent_source:
+            Ival = ccpt.Isc.sympy
+            if n1 >= 0:
+                mna._Is[n1] += F * Ival
+            if n2 >= 0:
+                mna._Is[n2] -= F * Ival
+
+        elif ccpt.is_resistor or ccpt.is_inductor or ccpt.is_capacitor:
+            n3, n4 = [mna._node_index(name) for name in ccpt.node_names[0:2]]
+            Zc = ccpt.Z.sympy
+
+            if n1 >= 0:
+                if n3 >= 0:
+                    mna._G[n1, n3] -= F / Zc
+                if n4 >= 0:
+                    mna._G[n1, n4] += F / Zc
+            if n2 >= 0:
+                if n3 >= 0:
+                    mna._G[n2, n3] += F / Zc
+                if n4 >= 0:
+                    mna._G[n2, n4] -= F / Zc
+
+        else:
+            raise ValueError('Unsupported controlling element type for %s' % self)
 
     def _kill(self):
         newopts = self.opts.copy()
