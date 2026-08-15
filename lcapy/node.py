@@ -1,6 +1,11 @@
 """This module provides support for nodes.
 
 Copyright 2020--2024 Michael Hayes, UCECE
+----------------------------------------------------
+Copyright (C) 2020--2024 Michael Hayes, UCECE
+Copyright (C) 2026 Amirmahmoud Rashidi — modifications
+This file is part of lcapy (https://github.com/mph-/lcapy) and is licensed under
+the GNU Lesser General Public License v2.1. See the LICENSE file in project root.
 
 """
 
