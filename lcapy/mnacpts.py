@@ -1083,7 +1083,7 @@ class DependentSource(Dummy):
 
 class RLC(Cpt):
 
-def _s_model(self, kind):
+    def _s_model(self, kind):
 
         var = s if kind == 's' else kind
 
