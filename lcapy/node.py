@@ -213,7 +213,7 @@ class Node(ImmittanceMixin):
         if cpt.type not in ('A', 'O'):
             self._count -= 1
 
-        if self.count == 0:
+        if len(self._connected) == 0:
             self.cct.nodes._delete(self.name)
 
     def _rename1(self, name):
