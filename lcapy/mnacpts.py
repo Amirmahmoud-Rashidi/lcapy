@@ -1083,12 +1083,16 @@ class DependentSource(Dummy):
 
 class RLC(Cpt):
 
-    def _s_model(self, kind):
+def _s_model(self, kind):
 
         var = s if kind == 's' else kind
 
-        if self.Voc == 0:
-            return self._netmake_variant('Z', args=self.Z(var))
+        select_kind = 'laplace' if kind == 's' else kind
+        Voc = self.cpt.Voc.select(select_kind, True)
+        Z = self.cpt.impedance._select(select_kind)(var)
+
+        if Voc == 0:
+            return self._netmake_variant('Z', args=Z)
 
         dummy_node = self._dummy_node()
 
@@ -1099,13 +1103,13 @@ class RLC(Cpt):
         voltage_opts = opts.strip_voltage_labels()
 
         znet = self._netmake_variant('Z', nodes=(self.relnodes[0], dummy_node),
-                                     args=self.Z(var), opts=opts)
+                                     args=Z, opts=opts)
 
         # Strip voltage and current labels from voltage source.
         opts.strip_all_labels()
 
         vnet = self._netmake_variant('V', nodes=(dummy_node, self.relnodes[1]),
-                                     args=self.Voc.laplace()(var), opts=opts)
+                                     args=('s', Voc.laplace()(var)), opts=opts)
         if voltage_opts == {}:
             return znet + '\n' + vnet
 
