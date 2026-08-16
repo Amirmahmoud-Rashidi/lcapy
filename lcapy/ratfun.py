@@ -269,7 +269,7 @@ class Ratfun(object):
         If `numerical` is True, compute the zeros numerically if there
         are no free symbols in the expression apart from `var`."""
 
-        return self._roots(sym.Poly(self.expr, self.var, numerical))
+        return self._roots(sym.Poly(self.expr, self.var), numerical)
 
     @lru_cache()
     def zeros(self, numerical=None):

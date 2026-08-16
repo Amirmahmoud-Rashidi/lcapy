@@ -3051,8 +3051,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if self._ratfun is None:
             roots = {}
         else:
-            roots = self._ratfun.roots()
-        return self._fmt_roots(roots, aslist, pairs, numerical=numerical)
+            roots = self._ratfun.roots(numerical=numerical)
+        return self._fmt_roots(roots, aslist, pairs)
 
     def zeros(self, aslist=False, pairs=False, numerical=None):
         """Return zeros of expression as a dictionary Note this may not find
