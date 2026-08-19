@@ -105,12 +105,12 @@ class NetlistMixin(object):
         if len(source_groups) > 1:
             # Have multiple sources of different kinds so use time
             return 'time'
+        elif self.is_IVP:
+            # Have one or no sources but have initial conditions so use laplace
+            return 'laplace'
         elif len(source_groups) == 1:
             # Have single source so use source kind
             return list(source_groups)[0]
-        elif self.is_IVP:
-            # Have no sources but have initial conditions so use laplace
-            return 'laplace'
         elif self.reactances != []:
             # Have no sources but have reactive components so use laplace
             return 'laplace'

@@ -23,8 +23,28 @@ One = sym.S.One
 # 2 is a generalized form of 1 with T = 0.
 
 
-def polyroots(poly, var):
-    """Return roots of polynomial `poly` for variable `var`."""
+def polyroots(poly, var, numerical=None):
+    """Return roots of polynomial `poly` for variable `var`.
+
+    If `numerical` is True, compute the zeros numerically if there
+    are no free symbols in the expression apart from `var`."""
+
+    a = set()
+    a.add(var)
+
+    if numerical:
+        numerical = poly.free_symbols == a
+
+    if numerical:
+        nroots = sym.nroots(poly)
+
+        roots = {}
+        for root in nroots:
+            if root in roots:
+                roots[root] += 1
+            else:
+                roots[root] = 1
+        return roots
 
     roots = sym.roots(poly)
     num_roots = 0
@@ -37,9 +57,7 @@ def polyroots(poly, var):
         # If the coefficients of the polynomial are numerical,
         # the SymPy nroots function can be used to find
         # numerical approximations to the roots.
-        a = set()
-        a.add(var)
-        if poly.free_symbols == a:
+        if numerical:
             warn('Only %d of %d roots found, using numerical approximation' %
                  (num_roots, poly.degree()))
 
@@ -58,10 +76,13 @@ def polyroots(poly, var):
     return roots
 
 
-def roots(expr, var):
-    """Return roots of expression `expr` for variable `var`."""
+def roots(expr, var, numerical=None):
+    """Return roots of expression `expr` for variable `var`.
 
-    return polyroots(sym.Poly(expr, var), var)
+    If `numerical` is True, compute the zeros numerically if there
+    are no free symbols in the expression apart from `var`."""
+
+    return polyroots(sym.Poly(expr, var), var, numerical)
 
 
 def as_numer_denom(expr, var):
@@ -236,45 +257,58 @@ class Ratfun(object):
 
         return self.B, self.A, self.delay, self.undef
 
-    def _roots(self, poly):
+    def _roots(self, poly, numerical=None):
 
-        return polyroots(poly, self.var)
+        return polyroots(poly, self.var, numerical)
 
     @lru_cache()
-    def roots(self):
+    def roots(self, numerical=None):
         """Return roots of expression as a dictionary
-        Note this may not find them all."""
+        Note this may not find them all.
 
-        return self._roots(sym.Poly(self.expr, self.var))
+        If `numerical` is True, compute the zeros numerically if there
+        are no free symbols in the expression apart from `var`."""
+
+        return self._roots(sym.Poly(self.expr, self.var), numerical)
 
     @lru_cache()
-    def zeros(self):
+    def zeros(self, numerical=None):
         """Return zeroes of expression as a dictionary
         Note this may not find them all.
 
         Zeros at infinity are not returned.  There will be q - p zeros
         at infinity for a rational function with a numerator of degree p
-        and a denominator of degree q."""
+        and a denominator of degree q.
 
-        return self._roots(self.Bpoly)
+        If `numerical` is True, compute the zeros numerically if there
+        are no free symbols in the expression apart from `var`."""
+
+        return self._roots(self.Bpoly, numerical)
 
     @lru_cache()
-    def poles(self, damping=None):
+    def poles(self, damping=None, simplify=None, numerical=None):
         """Return poles of expression as a list of Root objects.
         Note this may not find all the poles.
 
         Poles at infinity are not returned.  There will be p - q poles
         at infinity for a rational function with a numerator of degree p
-        and a denominator of degree q."""
+        and a denominator of degree q.
 
-        roots = self._roots(self.Apoly)
+        If `numerical` is True, compute the zeros numerically if there
+        are no free symbols in the expression apart from `var`."""
+
+        roots = self._roots(self.Apoly, numerical)
 
         poles = []
 
         for p, n in roots.items():
 
-            # Simplify things like -zeta + sqrt(zeta - 1) * sqrt(zeta + 2)
-            p = p.simplify()
+            # Heuristic to avoid simplify for really complicated poles.
+            if simplify is None:
+                simplify = p.count_ops() < 100
+            if simplify:
+                # Simplify things like -zeta + sqrt(zeta - 1) * sqrt(zeta + 2)
+                p = p.simplify()
 
             pole = Root(p, n=n, damping=damping)
             for q in poles:

@@ -3032,7 +3032,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         else:
             return _wrap_dict(roots)
 
-    def roots(self, aslist=False, pairs=False):
+    def roots(self, aslist=False, pairs=False, numerical=None):
         """Return roots of expression as a dictionary.  Note this may not find
         them all.  In particular, if the rational function has a
         degree of five or higher.
@@ -3043,15 +3043,18 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         If `aslist` is True, return roots as list.
 
+        If `numerical` is True, compute the roots numerically if there
+        are no free symbols in the expression apart from the domain variable.
+
         """
 
         if self._ratfun is None:
             roots = {}
         else:
-            roots = self._ratfun.roots()
+            roots = self._ratfun.roots(numerical=numerical)
         return self._fmt_roots(roots, aslist, pairs)
 
-    def zeros(self, aslist=False, pairs=False):
+    def zeros(self, aslist=False, pairs=False, numerical=None):
         """Return zeros of expression as a dictionary Note this may not find
         them all.  In particular, if the denominator of the rational
         function has a degree of five or higher.
@@ -3066,20 +3069,22 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         If `aslist` is True, return zeros as list.
 
+        If `numerical` is True, compute the zeros numerically if there
+        are no free symbols in the expression apart from the domain variable.
         """
 
         if self._ratfun is None:
-            return self.N.roots(aslist, pairs)
+            return self.N.roots(aslist, pairs, numerical=numerical)
 
         try:
             zeros = self._zeros
         except AttributeError:
-            zeros = self._ratfun.zeros()
+            zeros = self._ratfun.zeros(numerical=numerical)
             self._zeros = zeros
 
         return self._fmt_roots(zeros, aslist, pairs)
 
-    def poles(self, aslist=False, damping=None, pairs=False):
+    def poles(self, aslist=False, damping=None, pairs=False, numerical=None):
         """Return poles of expression as a dictionary.  Note this may not find
         them all.  In particular, if the denominator of the rational
         function has a degree of five or higher.
@@ -3100,6 +3105,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         If `aslist` is True, return poles as list.
 
+        If `numerical` is True, compute the poles numerically if there
+        are no free symbols in the expression apart from the domain variable.
+        
         """
 
         ratfun = self._ratfun
@@ -3110,7 +3118,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         try:
             poles = self._poles
         except AttributeError:
-            poles = ratfun.poles(damping=damping)
+            poles = ratfun.poles(damping=damping, numerical=numerical)
             self._poles = poles
 
         polesdict = {}
